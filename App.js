@@ -26,6 +26,8 @@ export class HomeScreen extends React.Component {
   turnDirection = "down";
 
 
+
+
   generatePlayers() {
     for (let i = 0; i < 20; i++) {
       let player = {};
@@ -109,6 +111,9 @@ export class HomeScreen extends React.Component {
     for (let i = 0; i < playersAmount; i++) {
       let draftedPlayer = this.players.shift();
       this.teams[this.turnIndex].players.push(draftedPlayer);
+      this.teams[this.turnIndex].players.sort((a, b) => {
+        return b.overall - a.overall;
+      });
 
       if (this.turnDirection == "down") {
         this.turnIndex == this.teams.length - 1 ? this.turnDirection = "up" : this.turnIndex += 1;
@@ -117,9 +122,6 @@ export class HomeScreen extends React.Component {
       }
     }
 
-    this.teams[this.turnIndex].players.sort((a, b) => {
-      return b.overall - a.overall;
-    });
     this.displayPlayers();
     this.displayTeams();
   }
