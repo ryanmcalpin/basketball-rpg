@@ -40,23 +40,29 @@ export class HomeScreen extends React.Component {
       player.defense = 70 + chance.integer({ min: -10, max: 10 });
       chance.bool() ? player.defense += chance.integer({ min: -10, max: 19 }) : null;
 
-      player.overall = this.getPlayerOverall(player.offense, player.defense);
+      player.overall = this.getPlayerOverall(player);
 
       player.potential = player.overall + chance.integer({min: 50 - player.overall, max: 99 - player.overall})
-      console.log(player.id + " " + player.name + ": "+ player.overall + "/" + player.potential)
+
+      player.value = this.getPlayerValue(player);
+      console.log(player)
 
       this.players.push(player);
     }
     this.displayPlayers();
   }
 
-  getPlayerOverall(off, def) {
-    return Math.round((off + def) / 2);
+  getPlayerOverall(player) {
+    return Math.round((player.offense + player.defense) / 2);
+  }
+
+  getPlayerValue(player) {
+    return Math.round((player.overall + player.potential) / 2);
   }
 
   displayPlayers() {
     this.players.sort((a, b) => {
-      return (this.getPlayerValue(b)) - (this.getPlayerValue(a));
+      return (b.value) - (a.value);
     });
 
     let playersDisplay = "";
@@ -65,10 +71,6 @@ export class HomeScreen extends React.Component {
     }
 
     this.setState({playersDisplay: playersDisplay})
-  }
-
-  getPlayerValue(player) {
-    return player.overall + player.potential/2
   }
 
   generateTeams() {
@@ -102,21 +104,24 @@ export class HomeScreen extends React.Component {
     this.setState({teamDisplay2: teamDisplayStrings[1]});
   }
 
-  draftPlayers() {
-    let draftedPlayer = this.players.shift();
-    this.teams[this.turnIndex].players.push(draftedPlayer);
-    this.teams[this.turnIndex].players.sort((a, b) => {
-      return b.overall - a.overall;
-    });;
+  populateTeams() {
+    let playersAmount = this.players.length;
+    for (let i = 0; i < playersAmount; i++) {
+      let draftedPlayer = this.players.shift();
+      this.teams[this.turnIndex].players.push(draftedPlayer);
 
-    if (this.turnDirection == "down") {
-      this.turnIndex == this.teams.length - 1 ? this.turnDirection = "up" : this.turnIndex += 1;
-    } else if (this.turnDirection == "up") {
-      this.turnIndex == 0 ? this.turnDirection = "down" : this.turnIndex -= 1;
+      if (this.turnDirection == "down") {
+        this.turnIndex == this.teams.length - 1 ? this.turnDirection = "up" : this.turnIndex += 1;
+      } else if (this.turnDirection == "up") {
+        this.turnIndex == 0 ? this.turnDirection = "down" : this.turnIndex -= 1;
+      }
     }
 
-    this.displayPlayers()
-    this.displayTeams()
+    this.teams[this.turnIndex].players.sort((a, b) => {
+      return b.overall - a.overall;
+    });
+    this.displayPlayers();
+    this.displayTeams();
   }
 
   render() {
@@ -133,7 +138,7 @@ export class HomeScreen extends React.Component {
             title="generate teams"
             ></Button>
           <Button
-            onPress={() => this.draftPlayers()}
+            onPress={() => this.populateTeams()}
             title="draft"
             ></Button>
         </View>
