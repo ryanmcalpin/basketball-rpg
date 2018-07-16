@@ -22,13 +22,19 @@ export class HomeScreen extends React.Component {
   players = [];
   teams = [];
   turnIndex = 0;
+  turnDirection = "down";
 
   generatePlayers() {
     for (let i = 0; i < 20; i++) {
       let player = {};
       player.name = chance.bool() ? chance.name() : chance.first() + " " + chance.last();
-      player.ability = 70 + chance.integer({ min: -20, max: 20 });
-      chance.bool() ? player.ability += chance.integer({ min: 0, max: 9 }) : null;
+
+      player.ability = 70 + chance.integer({ min: -10, max: 10 });
+      chance.bool() ? player.ability += chance.integer({ min: -10, max: 19 }) : null;
+
+      player.potential = player.ability + chance.integer({min: 50 - player.ability, max: 99 - player.ability})
+      console.log(player.ability + "/" + player.potential)
+
       this.players.push(player);
     }
     this.displayPlayers();
@@ -36,7 +42,7 @@ export class HomeScreen extends React.Component {
 
   displayPlayers() {
     this.players.sort((a, b) => {
-      return b.ability - a.ability;
+      return (b.ability + b.potential/2) - (a.ability + a.potential/2);
     });
 
     let playersDisplay = "";
@@ -81,7 +87,12 @@ export class HomeScreen extends React.Component {
   draftPlayers() {
     let draftedPlayer = this.players.shift();
     this.teams[this.turnIndex].players.push(draftedPlayer)
-    this.turnIndex == this.teams.length - 1 ? this.turnIndex = 0 : this.turnIndex += 1;
+
+    if (this.turnDirection == "down") {
+      this.turnIndex == this.teams.length - 1 ? this.turnDirection = "up" : this.turnIndex += 1;
+    } else if (this.turnDirection == "up") {
+      this.turnIndex == 0 ? this.turnDirection = "down" : this.turnIndex -= 1;
+    }
 
     this.displayPlayers()
     this.displayTeams()
