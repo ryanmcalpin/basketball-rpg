@@ -20,20 +20,30 @@ export class HomeScreen extends React.Component {
   }
 
   players = [];
+  playerId = 0;
   teams = [];
   turnIndex = 0;
   turnDirection = "down";
 
+
   generatePlayers() {
     for (let i = 0; i < 20; i++) {
       let player = {};
+      player.id = this.playerId;
+      this.playerId += 1;
+
       player.name = chance.bool() ? chance.name() : chance.first() + " " + chance.last();
 
-      player.ability = 70 + chance.integer({ min: -10, max: 10 });
-      chance.bool() ? player.ability += chance.integer({ min: -10, max: 19 }) : null;
+      player.offense = 70 + chance.integer({ min: -10, max: 10 });
+      chance.bool() ? player.offense += chance.integer({ min: -10, max: 19 }) : null;
 
-      player.potential = player.ability + chance.integer({min: 50 - player.ability, max: 99 - player.ability})
-      console.log(player.ability + "/" + player.potential)
+      player.defense = 70 + chance.integer({ min: -10, max: 10 });
+      chance.bool() ? player.defense += chance.integer({ min: -10, max: 19 }) : null;
+
+      player.overall = Math.round((player.offense + player.defense) / 2);
+
+      player.potential = player.overall + chance.integer({min: 50 - player.overall, max: 99 - player.overall})
+      console.log(player.id + " " + player.name + ": "+ player.overall + "/" + player.potential)
 
       this.players.push(player);
     }
@@ -42,12 +52,12 @@ export class HomeScreen extends React.Component {
 
   displayPlayers() {
     this.players.sort((a, b) => {
-      return (b.ability + b.potential/2) - (a.ability + a.potential/2);
+      return (b.overall + b.potential/2) - (a.overall + a.potential/2);
     });
 
     let playersDisplay = "";
     for (let i = 0; i < this.players.length; i++) {
-      playersDisplay += this.players[i].ability + " " + this.players[i].name + "\n";
+      playersDisplay += this.players[i].overall + " " + this.players[i].name + "\n";
     }
 
     this.setState({playersDisplay: playersDisplay})
@@ -73,7 +83,7 @@ export class HomeScreen extends React.Component {
 
       if (this.teams[i].players) {
         for (let j = 0; j < this.teams[i].players.length; j++) {
-          display += "\n" + this.teams[i].players[j].ability + " " + this.teams[i].players[j].name;
+          display += "\n" + this.teams[i].players[j].overall + " " + this.teams[i].players[j].name;
         }
       }
 
@@ -86,7 +96,10 @@ export class HomeScreen extends React.Component {
 
   draftPlayers() {
     let draftedPlayer = this.players.shift();
-    this.teams[this.turnIndex].players.push(draftedPlayer)
+    this.teams[this.turnIndex].players.push(draftedPlayer);
+    this.teams[this.turnIndex].players.sort((a, b) => {
+      return b.overall - a.overall;
+    });;
 
     if (this.turnDirection == "down") {
       this.turnIndex == this.teams.length - 1 ? this.turnDirection = "up" : this.turnIndex += 1;
