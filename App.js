@@ -40,7 +40,7 @@ export class HomeScreen extends React.Component {
       player.defense = 70 + chance.integer({ min: -10, max: 10 });
       chance.bool() ? player.defense += chance.integer({ min: -10, max: 19 }) : null;
 
-      player.overall = Math.round((player.offense + player.defense) / 2);
+      player.overall = this.getPlayerOverall(player.offense, player.defense);
 
       player.potential = player.overall + chance.integer({min: 50 - player.overall, max: 99 - player.overall})
       console.log(player.id + " " + player.name + ": "+ player.overall + "/" + player.potential)
@@ -50,9 +50,13 @@ export class HomeScreen extends React.Component {
     this.displayPlayers();
   }
 
+  getPlayerOverall(off, def) {
+    return Math.round((off + def) / 2);
+  }
+
   displayPlayers() {
     this.players.sort((a, b) => {
-      return (b.overall + b.potential/2) - (a.overall + a.potential/2);
+      return (this.getPlayerValue(b)) - (this.getPlayerValue(a));
     });
 
     let playersDisplay = "";
@@ -61,6 +65,10 @@ export class HomeScreen extends React.Component {
     }
 
     this.setState({playersDisplay: playersDisplay})
+  }
+
+  getPlayerValue(player) {
+    return player.overall + player.potential/2
   }
 
   generateTeams() {
