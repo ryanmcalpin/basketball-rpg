@@ -12,6 +12,8 @@ export class HomeScreen extends React.Component {
       playersDisplay: '',
       teamDisplay1: '',
       teamDisplay2: '',
+      teamDisplay3: '',
+      teamDisplay4: '',
     }
   }
 
@@ -25,8 +27,11 @@ export class HomeScreen extends React.Component {
   turnIndex = 0;
   turnDirection = "down";
 
-
-
+  startGame() {
+    this.generatePlayers();
+    this.generateTeams();
+    this.populateTeams();
+  }
 
   generatePlayers() {
     for (let i = 0; i < 20; i++) {
@@ -76,7 +81,7 @@ export class HomeScreen extends React.Component {
   }
 
   generateTeams() {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 4; i++) {
       let team = {};
       let name = chance.animal();
       name.slice(-1) != "s" ? name += "s" : null;
@@ -104,6 +109,8 @@ export class HomeScreen extends React.Component {
 
     this.setState({teamDisplay1: teamDisplayStrings[0]});
     this.setState({teamDisplay2: teamDisplayStrings[1]});
+    this.setState({teamDisplay3: teamDisplayStrings[2]});
+    this.setState({teamDisplay4: teamDisplayStrings[3]});
   }
 
   populateTeams() {
@@ -131,26 +138,21 @@ export class HomeScreen extends React.Component {
       <ScrollView>
         <View style={styles.container}>
           <Button
-            onPress={() => this.generatePlayers()}
-            title="generate players"
-            ></Button>
-          <Text>{this.state.playersDisplay}</Text>
-          <Button
-            onPress={() => this.generateTeams()}
-            title="generate teams"
-            ></Button>
-          <Button
-            onPress={() => this.populateTeams()}
-            title="draft"
+            onPress={() => this.startGame()}
+            title="generate league"
             ></Button>
         </View>
-        <View style={styles.containerH}>
-          <View style={styles.centerChildren}>
-            <Text>{this.state.teamDisplay1}</Text>
-          </View>
-          <View>
-            <Text>{this.state.teamDisplay2}</Text>
-          </View>
+        <View style={styles.container}>
+          <Text>{this.state.teamDisplay1}</Text>
+        </View>
+        <View style={styles.container}>
+          <Text>{this.state.teamDisplay2}</Text>
+        </View>
+        <View style={styles.container}>
+          <Text>{this.state.teamDisplay3}</Text>
+        </View>
+        <View style={styles.container}>
+          <Text>{this.state.teamDisplay4}</Text>
         </View>
       </ScrollView>
     );
